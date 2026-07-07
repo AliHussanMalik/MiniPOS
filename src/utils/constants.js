@@ -1,0 +1,13 @@
+const ROLES = {
+  OWNER: "OWNER",
+  CUSTOMER: "CUSTOMER",
+};
+
+const STAFF_ROLES = [ROLES.OWNER];
+const CUSTOMER_ROLES = [ROLES.CUSTOMER];
+
+module.exports = {
+  ROLES,
+  STAFF_ROLES,
+  CUSTOMER_ROLES,
+};

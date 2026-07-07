@@ -1,0 +1,161 @@
+// Product repository
+// Responsible for product data access and database communication.
+
+const pool = require("../../config/db");
+const { buildUpdateQuery } = require("../../utils/repository.helpers");
+
+const productReturning = `
+  id,
+  name,
+  category_id AS "categoryId",
+  barcode,
+  sku,
+  description,
+  cost_price AS "costPrice",
+  selling_price AS "sellingPrice",
+  stock_quantity AS "stockQuantity",
+  minimum_stock AS "minimumStock",
+  unit,
+  is_active AS "isActive",
+  created_at AS "createdAt",
+  updated_at AS "updatedAt",
+  deleted_at AS "deletedAt"
+`;
+
+const createProduct = async ({
+  name,
+  categoryId,
+  barcode = null,
+  sku = null,
+  description = null,
+  costPrice,
+  sellingPrice,
+  stockQuantity = 0,
+  minimumStock = 0,
+  unit,
+  isActive = true,
+}) => {
+  const result = await pool.query(
+    `
+      INSERT INTO products (
+        name,
+        category_id,
+        barcode,
+        sku,
+        description,
+        cost_price,
+        selling_price,
+        stock_quantity,
+        minimum_stock,
+        unit,
+        is_active
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING ${productReturning};
+    `,
+    [
+      name,
+      categoryId,
+      barcode,
+      sku,
+      description,
+      costPrice,
+      sellingPrice,
+      stockQuantity,
+      minimumStock,
+      unit,
+      isActive,
+    ]
+  );
+
+  return result.rows[0];
+};
+
+const findAllProducts = async () => {
+  const result = await pool.query(`
+    SELECT ${productReturning}
+    FROM products
+    WHERE deleted_at IS NULL
+    ORDER BY id;
+  `);
+
+  return result.rows;
+};
+
+const findProductById = async (id) => {
+  const result = await pool.query(
+    `
+      SELECT ${productReturning}
+      FROM products
+      WHERE id = $1 AND deleted_at IS NULL;
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+};
+
+const updateProduct = async (id, data) => {
+  const query = buildUpdateQuery({
+    table: "products",
+    id,
+    data,
+    columns: {
+      name: "name",
+      categoryId: "category_id",
+      barcode: "barcode",
+      sku: "sku",
+      description: "description",
+      costPrice: "cost_price",
+      sellingPrice: "selling_price",
+      stockQuantity: "stock_quantity",
+      minimumStock: "minimum_stock",
+      unit: "unit",
+      isActive: "is_active",
+    },
+    returning: productReturning,
+  });
+
+  if (!query) return findProductById(id);
+
+  const result = await pool.query(query.text, query.values);
+
+  return result.rows[0];
+};
+
+const deleteProduct = async (id) => {
+  const result = await pool.query(
+    `
+      UPDATE products
+      SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1 AND deleted_at IS NULL
+      RETURNING ${productReturning};
+    `,
+    [id]
+  );
+
+  return result.rows[0];
+};
+
+const findProductsByIds = async (productIds) => {
+  const result = await pool.query(
+    `
+      SELECT ${productReturning}
+      FROM products
+      WHERE id = ANY($1::int[])
+        AND deleted_at IS NULL;
+    `,
+    [productIds]
+  );
+
+  return result.rows;
+};
+
+module.exports = {
+  createProduct,
+  findAllProducts,
+  findProductById,
+  updateProduct,
+  deleteProduct,
+  findProductsByIds,
+};
