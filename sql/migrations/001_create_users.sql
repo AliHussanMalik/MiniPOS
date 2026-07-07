@@ -1,5 +1,4 @@
-
-CREATE TYPE user_role AS ENUM ('ADMIN', 'CASHIER');
+CREATE TYPE user_role AS ENUM ('OWNER', 'CUSTOMER');
 
 CREATE TABLE users
 (
@@ -11,7 +10,7 @@ CREATE TABLE users
 
     password VARCHAR(255) NOT NULL,
 
-    role user_role NOT NULL DEFAULT 'CASHIER',
+    role user_role NOT NULL DEFAULT 'CUSTOMER',
 
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
 
