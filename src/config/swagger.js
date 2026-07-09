@@ -425,39 +425,40 @@ const openApiSpec = {
       }),
       delete: protectedOperation({ tags: ["Categories"], summary: "Delete category (owner only)", parameters: [idParameter], responses: { 200: { description: "Category deleted" } } }),
     },
-    "/customers": {
-      get: protectedOperation({ tags: ["Customers"], summary: "List customers", responses: { 200: listResponse("Customers", "#/components/schemas/Customer") } }),
-      post: protectedOperation({
-        tags: ["Customers"],
-        summary: "Create customer",
-        requestBody: jsonBody("#/components/schemas/CustomerRequest"),
-        responses: { 201: successResponse("Customer created", "#/components/schemas/Customer") },
-      }),
-    },
-    "/customers/me": {
-      get: protectedOperation({
-        tags: ["Customers"],
-        summary: "Get own customer profile",
-        responses: { 200: successResponse("Customer", "#/components/schemas/Customer") },
-      }),
-      put: protectedOperation({
-        tags: ["Customers"],
-        summary: "Update own customer profile",
-        requestBody: jsonBody("#/components/schemas/CustomerRequest"),
-        responses: { 200: successResponse("Customer profile updated", "#/components/schemas/Customer") },
-      }),
-    },
-    "/customers/{id}": {
-      get: protectedOperation({ tags: ["Customers"], summary: "Get customer by id", parameters: [idParameter], responses: { 200: successResponse("Customer", "#/components/schemas/Customer") } }),
-      put: protectedOperation({
-        tags: ["Customers"],
-        summary: "Update customer",
-        parameters: [idParameter],
-        requestBody: jsonBody("#/components/schemas/CustomerRequest"),
-        responses: { 200: successResponse("Customer updated", "#/components/schemas/Customer") },
-      }),
-      delete: protectedOperation({ tags: ["Customers"], summary: "Delete customer", parameters: [idParameter], responses: { 200: { description: "Customer deleted" } } }),
-    },
+    //I am commenting out the customers from swagger
+    // "/customers": {
+    //   get: protectedOperation({ tags: ["Customers"], summary: "List customers", responses: { 200: listResponse("Customers", "#/components/schemas/Customer") } }),
+    //   post: protectedOperation({
+    //     tags: ["Customers"],
+    //     summary: "Create customer",
+    //     requestBody: jsonBody("#/components/schemas/CustomerRequest"),
+    //     responses: { 201: successResponse("Customer created", "#/components/schemas/Customer") },
+    //   }),
+    // },
+    // "/customers/me": {
+    //   get: protectedOperation({
+    //     tags: ["Customers"],
+    //     summary: "Get own customer profile",
+    //     responses: { 200: successResponse("Customer", "#/components/schemas/Customer") },
+    //   }),
+    //   put: protectedOperation({
+    //     tags: ["Customers"],
+    //     summary: "Update own customer profile",
+    //     requestBody: jsonBody("#/components/schemas/CustomerRequest"),
+    //     responses: { 200: successResponse("Customer profile updated", "#/components/schemas/Customer") },
+    //   }),
+    // },
+    // "/customers/{id}": {
+    //   get: protectedOperation({ tags: ["Customers"], summary: "Get customer by id", parameters: [idParameter], responses: { 200: successResponse("Customer", "#/components/schemas/Customer") } }),
+    //   put: protectedOperation({
+    //     tags: ["Customers"],
+    //     summary: "Update customer",
+    //     parameters: [idParameter],
+    //     requestBody: jsonBody("#/components/schemas/CustomerRequest"),
+    //     responses: { 200: successResponse("Customer updated", "#/components/schemas/Customer") },
+    //   }),
+    //   delete: protectedOperation({ tags: ["Customers"], summary: "Delete customer", parameters: [idParameter], responses: { 200: { description: "Customer deleted" } } }),
+    // },
     "/inventory": {
       get: protectedOperation({ tags: ["Inventory"], summary: "List inventory movements (owner only)", responses: { 200: listResponse("Inventory movements", "#/components/schemas/InventoryMovement") } }),
       post: protectedOperation({
