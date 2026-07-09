@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(swaggerRoutes);
 app.use("/api", routes);
-app.use("/user", userRoutes);
-app.use("/users", userRoutes);
+// app.use("/user", userRoutes);
+// app.use("/users", userRoutes);
 
 module.exports = app;
