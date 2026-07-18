@@ -23,7 +23,6 @@ const updateProductSchema = {
   description: { type: "string" },
   costPrice: { type: "number", min: 0 },
   sellingPrice: { type: "number", min: 0 },
-  stockQuantity: { type: "integer", min: 0 },
   minimumStock: { type: "integer", min: 0 },
   unit: { type: "string", minLength: 1 },
   isActive: { type: "boolean" },

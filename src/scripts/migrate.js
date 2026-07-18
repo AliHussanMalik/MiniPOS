@@ -79,6 +79,7 @@ async function migrate() {
 
         console.error(" Migration Failed");
         console.error(err.message);
+        process.exitCode = 1;
 
     } finally {
 

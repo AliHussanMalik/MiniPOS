@@ -42,7 +42,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  await productService.deleteProduct(id, req.user.storeId);
+  await productService.deleteProduct(id, req.storeId);
 
   res.status(200).json({ message: "Product deleted successfully" });
 });

@@ -13,7 +13,7 @@ const { ROLES } = require("../../utils/constants");
 
 const router = express.Router();
 
-router.use(authenticate, requireStore, authorize(...STAFF_ROLES, ROLES.CASHIER));
+router.use(authenticate, requireStore, authorize(...STAFF_ROLES));
 
 router.get("/", categoryController.getCategories);
 router.get("/:id", categoryController.getCategoryById);

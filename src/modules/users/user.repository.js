@@ -18,7 +18,7 @@ const createUser = async ({
   fullName,
   email,
   password,
-  role = "CASHIER",
+  role = "CUSTOMER",
   isActive = true,
 }) => {
   const result = await pool.query(
@@ -74,10 +74,8 @@ const findUserByEmail = async (email) => {
         u.is_active AS "isActive",
         u.created_at AS "createdAt",
         u.updated_at AS "updatedAt",
-        su.store_id AS "storeId"
+        NULL::int AS "storeId"
       FROM users u
-      LEFT JOIN store_users su
-        ON su.user_id = u.id
       WHERE u.email = $1;
     `,
     [email]

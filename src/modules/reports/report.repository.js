@@ -4,7 +4,7 @@
 const pool = require("../../config/db");
 
 const buildSalesFilters = ({ storeId, startDate, endDate, userId, customerId }) => {
-  const conditions = ["store_id = $1"];
+  const conditions = ["store_id = $1", "status = 'COMPLETED'"];
   const values = [storeId];
 
   if (startDate) {

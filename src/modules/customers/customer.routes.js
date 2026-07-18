@@ -23,10 +23,10 @@ router.put(
   customerController.updateOwnCustomerProfile
 );
 
-router.post("/", authorize(...STAFF_ROLES, ROLES.CASHIER), validate(createCustomerSchema), customerController.createCustomer);
-router.get("/", authorize(...STAFF_ROLES, ROLES.CASHIER), customerController.getCustomers);
-router.get("/:id", authorize(...STAFF_ROLES, ROLES.CASHIER), customerController.getCustomerById);
-router.put("/:id", authorize(...STAFF_ROLES, ROLES.CASHIER), validate(updateCustomerSchema), customerController.updateCustomer);
+router.post("/", authorize(...STAFF_ROLES), validate(createCustomerSchema), customerController.createCustomer);
+router.get("/", authorize(...STAFF_ROLES), customerController.getCustomers);
+router.get("/:id", authorize(...STAFF_ROLES), customerController.getCustomerById);
+router.put("/:id", authorize(...STAFF_ROLES), validate(updateCustomerSchema), customerController.updateCustomer);
 router.delete("/:id", authorize(...STAFF_ROLES), customerController.deleteCustomer);
 
 module.exports = router;

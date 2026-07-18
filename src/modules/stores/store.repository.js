@@ -15,16 +15,40 @@ const storeReturning = `
 `;
 
 const createStore = async ({ ownerId, name, slug, email = null, phone = null, address = null }) => {
-  const result = await pool.query(
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await client.query(
     `
       INSERT INTO stores (owner_id, name, slug, email, phone, address)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING ${storeReturning};
     `,
     [ownerId, name, slug, email, phone, address]
-  );
+    );
+    const store = result.rows[0];
+    await client.query(
+      "INSERT INTO store_users (store_id, user_id, is_active) VALUES ($1, $2, true)",
+      [store.id, ownerId]
+    );
+    await client.query("COMMIT");
+    return store;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
 
-  return result.rows[0];
+const hasStoreAccess = async (storeId, userId, role) => {
+  const result = await pool.query(
+    role === "OWNER"
+      ? "SELECT 1 FROM stores WHERE id = $1 AND owner_id = $2"
+      : "SELECT 1 FROM store_users WHERE store_id = $1 AND user_id = $2 AND is_active = true",
+    [storeId, userId]
+  );
+  return result.rowCount > 0;
 };
 
 const findStoreById = async (id) => {
@@ -157,6 +181,7 @@ const removeUserFromStore = async (storeId, userId) => {
 
 module.exports = {
   createStore,
+  hasStoreAccess,
   findStoreById,
   findStoresByOwnerId,
   findStoresByUserId,

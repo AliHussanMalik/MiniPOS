@@ -16,6 +16,13 @@ const isValidType = (value, type) => {
 const validateObject = (schema, data, prefix = "") => {
   const errors = [];
 
+  Object.keys(data).forEach((field) => {
+    if (!Object.hasOwn(schema, field)) {
+      const fieldName = prefix ? `${prefix}.${field}` : field;
+      errors.push(`${fieldName} is not allowed`);
+    }
+  });
+
   Object.entries(schema).forEach(([field, rules]) => {
     const value = data[field];
     const fieldName = prefix ? `${prefix}.${field}` : field;
@@ -51,6 +58,9 @@ const validateObject = (schema, data, prefix = "") => {
     }
 
     if (rules.itemSchema && Array.isArray(value)) {
+      if (rules.minItems !== undefined && value.length < rules.minItems) {
+        errors.push(`${fieldName} must contain at least ${rules.minItems} item(s)`);
+      }
       value.forEach((item, index) => {
         if (!item || typeof item !== "object" || Array.isArray(item)) {
           errors.push(`${fieldName}[${index}] must be an object`);
@@ -67,7 +77,13 @@ const validateObject = (schema, data, prefix = "") => {
 
 const validate = (schema, source = "body") => {
   return (req, res, next) => {
-    const data = req[source] || {};
+    const sourceData = req[source] || {};
+    const data = source === "query"
+      ? Object.fromEntries(Object.entries(sourceData).map(([field, value]) => [
+        field,
+        schema[field]?.type === "integer" && value !== "" ? Number(value) : value,
+      ]))
+      : sourceData;
     const errors = validateObject(schema, data);
 
     if (errors.length > 0) {

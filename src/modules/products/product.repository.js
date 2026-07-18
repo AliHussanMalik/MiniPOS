@@ -33,7 +33,10 @@ const createProduct = async (storeId, {
   unit,
   isActive = true,
 }) => {
-  const result = await pool.query(
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await client.query(
     `
       INSERT INTO products (
         store_id,
@@ -61,14 +64,32 @@ const createProduct = async (storeId, {
       description,
       costPrice,
       sellingPrice,
-      stockQuantity,
+      0,
       minimumStock,
       unit,
       isActive,
     ]
-  );
-
-  return result.rows[0];
+    );
+    const product = result.rows[0];
+    if (stockQuantity > 0) {
+      await client.query(
+        "UPDATE products SET stock_quantity = $1 WHERE id = $2",
+        [stockQuantity, product.id]
+      );
+      await client.query(
+        "INSERT INTO inventory_movements (product_id, quantity, movement_type, notes) VALUES ($1, $2, 'STOCK_IN', 'Initial stock')",
+        [product.id, stockQuantity]
+      );
+      product.stockQuantity = stockQuantity;
+    }
+    await client.query("COMMIT");
+    return product;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 const findAllProducts = async (storeId) => {
@@ -111,7 +132,6 @@ const updateProduct = async (id, storeId, data) => {
       description: "description",
       costPrice: "cost_price",
       sellingPrice: "selling_price",
-      stockQuantity: "stock_quantity",
       minimumStock: "minimum_stock",
       unit: "unit",
       isActive: "is_active",
