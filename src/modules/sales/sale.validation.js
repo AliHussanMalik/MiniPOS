@@ -4,17 +4,15 @@
 const saleItemSchema = {
   productId: { required: true, type: "integer", min: 1 },
   quantity: { required: true, type: "integer", min: 1 },
-  unitPrice: { required: true, type: "number", min: 0 },
-  subtotal: { required: true, type: "number", min: 0 },
 };
 
 const createSaleSchema = {
   customerId: { type: "integer", min: 1 },
-  userId: { type: "integer", min: 1 },
-  subtotal: { required: true, type: "number", min: 0 },
+  // userId: { type: "integer", min: 1 },
+  // subtotal: { required: true, type: "number", min: 0 },
   discount: { type: "number", min: 0 },
-  tax: { type: "number", min: 0 },
-  totalAmount: { required: true, type: "number", min: 0 },
+  // tax: { type: "number", min: 0 },
+  // totalAmount: { required: true, type: "number", min: 0 },
   paymentMethod: {
     required: true,
     type: "string",
@@ -33,11 +31,11 @@ const createSaleSchema = {
 
 const updateSaleSchema = {
   customerId: { type: "integer", min: 1 },
-  userId: { type: "integer", min: 1 },
-  subtotal: { type: "number", min: 0 },
-  discount: { type: "number", min: 0 },
-  tax: { type: "number", min: 0 },
-  totalAmount: { type: "number", min: 0 },
+  // userId: { type: "integer", min: 1 },
+  // subtotal: { type: "number", min: 0 },
+  // discount: { type: "number", min: 0 },
+  // tax: { type: "number", min: 0 },
+  // totalAmount: { type: "number", min: 0 },
   paymentMethod: {
     type: "string",
     allowedValues: ["CASH", "CARD", "ONLINE"],
@@ -46,10 +44,10 @@ const updateSaleSchema = {
     type: "string",
     allowedValues: ["COMPLETED", "CANCELLED"],
   },
-  items: {
-    type: "array",
-    itemSchema: saleItemSchema,
-  },
+  // items: {
+  //   type: "array",
+  //   itemSchema: saleItemSchema,
+  // },
 };
 
 module.exports = {

@@ -66,10 +66,19 @@ const findUserByEmail = async (email) => {
   const result = await pool.query(
     `
       SELECT
-        ${userReturning},
-        password
-      FROM users
-      WHERE email = $1;
+        u.id,
+        u.full_name AS "fullName",
+        u.email,
+        u.password,
+        u.role,
+        u.is_active AS "isActive",
+        u.created_at AS "createdAt",
+        u.updated_at AS "updatedAt",
+        su.store_id AS "storeId"
+      FROM users u
+      LEFT JOIN store_users su
+        ON su.user_id = u.id
+      WHERE u.email = $1;
     `,
     [email]
   );

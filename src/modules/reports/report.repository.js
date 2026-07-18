@@ -3,9 +3,9 @@
 
 const pool = require("../../config/db");
 
-const buildSalesFilters = ({ startDate, endDate, userId, customerId }) => {
-  const conditions = [];
-  const values = [];
+const buildSalesFilters = ({ storeId, startDate, endDate, userId, customerId }) => {
+  const conditions = ["store_id = $1"];
+  const values = [storeId];
 
   if (startDate) {
     values.push(startDate);
@@ -28,22 +28,22 @@ const buildSalesFilters = ({ startDate, endDate, userId, customerId }) => {
   }
 
   return {
-    where: conditions.length ? `WHERE ${conditions.join(" AND ")}` : "",
+    where: `WHERE ${conditions.join(" AND ")}`,
     values,
   };
 };
 
-const findReports = async (filters) => {
+const findReports = async (storeId, filters) => {
   const [sales, inventory] = await Promise.all([
-    findSalesReport(filters),
-    findInventoryReport(filters),
+    findSalesReport(storeId, filters),
+    findInventoryReport(storeId, filters),
   ]);
 
   return { sales, inventory };
 };
 
-const findSalesReport = async (filters = {}) => {
-  const { where, values } = buildSalesFilters(filters);
+const findSalesReport = async (storeId, filters = {}) => {
+  const { where, values } = buildSalesFilters({ storeId, ...filters });
   const result = await pool.query(
     `
       SELECT
@@ -61,16 +61,16 @@ const findSalesReport = async (filters = {}) => {
   return result.rows[0];
 };
 
-const findInventoryReport = async ({ productId } = {}) => {
-  const values = [];
-  const conditions = [];
+const findInventoryReport = async (storeId, { productId } = {}) => {
+  const values = [storeId];
+  const conditions = ["p.store_id = $1"];
 
   if (productId) {
     values.push(Number(productId));
     conditions.push(`im.product_id = $${values.length}`);
   }
 
-  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+  const where = `WHERE ${conditions.join(" AND ")}`;
   const result = await pool.query(
     `
       SELECT

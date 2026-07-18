@@ -1,19 +1,21 @@
 // Customer controller
 // Handles incoming HTTP requests for customers and sends HTTP responses.
-// Business rules should live in the service layer when implementation is added.
 
 const customerService = require("./customer.service");
 const customerDto = require("./customer.dto");
 const { asyncHandler, requireId } = require("../../utils/controller.helpers");
 
 const createCustomer = asyncHandler(async (req, res) => {
-  const customer = await customerService.createCustomer(customerDto.toCreateCustomerRequestDto(req.body));
+  const customer = await customerService.createCustomer(
+    req.storeId,
+    customerDto.toCreateCustomerRequestDto(req.body)
+  );
 
   res.status(201).json({ message: "Customer created successfully", data: customerDto.toCustomerResponseDto(customer) });
 });
 
 const getCustomers = asyncHandler(async (req, res) => {
-  const customers = await customerService.getCustomers();
+  const customers = await customerService.getCustomers(req.storeId);
 
   res.status(200).json({ data: customerDto.toCustomersResponseDto(customers) });
 });
@@ -22,13 +24,13 @@ const getCustomerById = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  const customer = await customerService.getCustomerById(id);
+  const customer = await customerService.getCustomerById(id, req.storeId);
 
   res.status(200).json({ data: customerDto.toCustomerResponseDto(customer) });
 });
 
 const getOwnCustomerProfile = asyncHandler(async (req, res) => {
-  const customer = await customerService.getOwnCustomerProfile(req.user);
+  const customer = await customerService.getOwnCustomerProfile(req.user, req.storeId);
 
   res.status(200).json({ data: customerDto.toCustomerResponseDto(customer) });
 });
@@ -37,7 +39,7 @@ const updateCustomer = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  const customer = await customerService.updateCustomer(id, customerDto.toUpdateCustomerRequestDto(req.body));
+  const customer = await customerService.updateCustomer(id, req.storeId, customerDto.toUpdateCustomerRequestDto(req.body));
 
   res.status(200).json({ message: "Customer updated successfully", data: customerDto.toCustomerResponseDto(customer) });
 });
@@ -45,6 +47,7 @@ const updateCustomer = asyncHandler(async (req, res) => {
 const updateOwnCustomerProfile = asyncHandler(async (req, res) => {
   const customer = await customerService.updateOwnCustomerProfile(
     req.user,
+    req.storeId,
     customerDto.toUpdateCustomerRequestDto(req.body)
   );
 
@@ -55,7 +58,7 @@ const deleteCustomer = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  await customerService.deleteCustomer(id);
+  await customerService.deleteCustomer(id, req.storeId);
 
   res.status(200).json({ message: "Customer deleted successfully" });
 });

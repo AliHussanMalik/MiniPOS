@@ -2,9 +2,9 @@ const inventoryService = require("../inventory/inventory.service");
 const productRepository = require("./product.repository");
 const { ensureFound, mapDatabaseError } = require("../../utils/service.helpers");
 
-const createProduct = async (payload) => {
+const createProduct = async (storeId, payload) => {
   try {
-    const product = await productRepository.createProduct(payload);
+    const product = await productRepository.createProduct(storeId, payload);
 
     if (product.stockQuantity > 0) {
       await inventoryService.createInventoryItem({
@@ -21,19 +21,19 @@ const createProduct = async (payload) => {
   }
 };
 
-const getProducts = async () => {
-  return productRepository.findAllProducts();
+const getProducts = async (storeId) => {
+  return productRepository.findAllProducts(storeId);
 };
 
-const getProductById = async (id) => {
-  const product = await productRepository.findProductById(id);
+const getProductById = async (id, storeId) => {
+  const product = await productRepository.findProductById(id, storeId);
 
   return ensureFound(product, "Product not found");
 };
 
-const updateProduct = async (id, payload) => {
+const updateProduct = async (id, storeId, payload) => {
   try {
-    const product = await productRepository.updateProduct(id, payload);
+    const product = await productRepository.updateProduct(id, storeId, payload);
 
     return ensureFound(product, "Product not found");
   } catch (error) {
@@ -42,9 +42,9 @@ const updateProduct = async (id, payload) => {
   }
 };
 
-const deleteProduct = async (id) => {
+const deleteProduct = async (id, storeId) => {
   try {
-    const product = await productRepository.deleteProduct(id);
+    const product = await productRepository.deleteProduct(id, storeId);
 
     return ensureFound(product, "Product not found");
   } catch (error) {
@@ -52,8 +52,9 @@ const deleteProduct = async (id) => {
     throw mapDatabaseError(error, "Unable to delete product");
   }
 };
-const findProductsByIds = async (ids) => {
-  return productRepository.findProductsByIds(ids);
+
+const findProductsByIds = async (ids, storeId) => {
+  return productRepository.findProductsByIds(ids, storeId);
 };
 
 module.exports = {

@@ -1,18 +1,34 @@
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type
+        WHERE typname = 'payment_method'
+    ) THEN
+        CREATE TYPE payment_method AS ENUM (
+            'CASH',
+            'CARD',
+            'ONLINE'
+        );
+    END IF;
+END $$;
 
-CREATE TYPE payment_method AS ENUM
-(
-    'CASH',
-    'CARD',
-    'ONLINE'
-);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type
+        WHERE typname = 'sale_status'
+    ) THEN
+        CREATE TYPE sale_status AS ENUM (
+            'COMPLETED',
+            'CANCELLED'
+        );
+    END IF;
+END $$ ;
 
-CREATE TYPE sale_status AS ENUM
-(
-    'COMPLETED',
-    'CANCELLED'
-);
 
-CREATE TABLE sales
+CREATE TABLE IF NOT EXISTS sales
 (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 

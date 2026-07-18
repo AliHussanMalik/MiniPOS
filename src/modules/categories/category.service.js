@@ -5,27 +5,27 @@
 const categoryRepository = require("./category.repository");
 const { ensureFound, mapDatabaseError } = require("../../utils/service.helpers");
 
-const createCategory = async (payload) => {
+const createCategory = async (storeId, payload) => {
   try {
-    return await categoryRepository.createCategory(payload);
+    return await categoryRepository.createCategory(storeId, payload);
   } catch (error) {
     throw mapDatabaseError(error, "Unable to create category");
   }
 };
 
-const getCategories = async () => {
-  return categoryRepository.findAllCategories();
+const getCategories = async (storeId) => {
+  return categoryRepository.findAllCategories(storeId);
 };
 
-const getCategoryById = async (id) => {
-  const category = await categoryRepository.findCategoryById(id);
+const getCategoryById = async (id, storeId) => {
+  const category = await categoryRepository.findCategoryById(id, storeId);
 
   return ensureFound(category, "Category not found");
 };
 
-const updateCategory = async (id, payload) => {
+const updateCategory = async (id, storeId, payload) => {
   try {
-    const category = await categoryRepository.updateCategory(id, payload);
+    const category = await categoryRepository.updateCategory(id, storeId, payload);
 
     return ensureFound(category, "Category not found");
   } catch (error) {
@@ -34,9 +34,9 @@ const updateCategory = async (id, payload) => {
   }
 };
 
-const deleteCategory = async (id) => {
+const deleteCategory = async (id, storeId) => {
   try {
-    const category = await categoryRepository.deleteCategory(id);
+    const category = await categoryRepository.deleteCategory(id, storeId);
 
     return ensureFound(category, "Category not found");
   } catch (error) {

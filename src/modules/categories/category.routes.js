@@ -7,12 +7,13 @@ const categoryController = require("./category.controller");
 const validate = require("../../middlewares/validation.middleware");
 const authenticate = require("../../middlewares/auth.middleware");
 const authorize = require("../../middlewares/role.middleware");
+const requireStore = require("../../middlewares/store.middleware");
 const { createCategorySchema, updateCategorySchema } = require("./category.validation");
 const { ROLES } = require("../../utils/constants");
 
 const router = express.Router();
 
-router.use(authenticate, authorize(...STAFF_ROLES, ROLES.CASHIER));
+router.use(authenticate, requireStore, authorize(...STAFF_ROLES, ROLES.CASHIER));
 
 router.get("/", categoryController.getCategories);
 router.get("/:id", categoryController.getCategoryById);

@@ -6,11 +6,11 @@ const express = require("express");
 const reportController = require("./report.controller");
 const authenticate = require("../../middlewares/auth.middleware");
 const authorize = require("../../middlewares/role.middleware");
-const { ROLES } = require("../../utils/constants");
+const requireStore = require("../../middlewares/store.middleware");
 
 const router = express.Router();
 
-router.use(authenticate, authorize(...STAFF_ROLES));
+router.use(authenticate, requireStore, authorize(...STAFF_ROLES));
 
 router.get("/", reportController.getReports);
 router.get("/sales", reportController.getSalesReport);

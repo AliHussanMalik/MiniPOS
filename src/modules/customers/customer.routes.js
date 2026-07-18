@@ -7,12 +7,13 @@ const customerController = require("./customer.controller");
 const validate = require("../../middlewares/validation.middleware");
 const authenticate = require("../../middlewares/auth.middleware");
 const authorize = require("../../middlewares/role.middleware");
+const requireStore = require("../../middlewares/store.middleware");
 const { createCustomerSchema, updateCustomerSchema } = require("./customer.validation");
 const { ROLES } = require("../../utils/constants");
 
 const router = express.Router();
 
-router.use(authenticate);
+router.use(authenticate, requireStore);
 
 router.get("/me", authorize(ROLES.CUSTOMER), customerController.getOwnCustomerProfile);
 router.put(
