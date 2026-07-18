@@ -1,11 +1,9 @@
-// Product repository
-// Responsible for product data access and database communication.
-
 const pool = require("../../config/db");
 const { buildUpdateQuery } = require("../../utils/repository.helpers");
 
 const productReturning = `
   id,
+  store_id AS "storeId",
   name,
   category_id AS "categoryId",
   barcode,
@@ -22,7 +20,7 @@ const productReturning = `
   deleted_at AS "deletedAt"
 `;
 
-const createProduct = async ({
+const createProduct = async (storeId, {
   name,
   categoryId,
   barcode = null,
@@ -38,6 +36,7 @@ const createProduct = async ({
   const result = await pool.query(
     `
       INSERT INTO products (
+        store_id,
         name,
         category_id,
         barcode,
@@ -50,10 +49,11 @@ const createProduct = async ({
         unit,
         is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING ${productReturning};
     `,
     [
+      storeId,
       name,
       categoryId,
       barcode,
@@ -71,31 +71,34 @@ const createProduct = async ({
   return result.rows[0];
 };
 
-const findAllProducts = async () => {
-  const result = await pool.query(`
-    SELECT ${productReturning}
-    FROM products
-    WHERE deleted_at IS NULL
-    ORDER BY id;
-  `);
-
-  return result.rows;
-};
-
-const findProductById = async (id) => {
+const findAllProducts = async (storeId) => {
   const result = await pool.query(
     `
       SELECT ${productReturning}
       FROM products
-      WHERE id = $1 AND deleted_at IS NULL;
+      WHERE store_id = $1 AND deleted_at IS NULL
+      ORDER BY id;
     `,
-    [id]
+    [storeId]
+  );
+
+  return result.rows;
+};
+
+const findProductById = async (id, storeId) => {
+  const result = await pool.query(
+    `
+      SELECT ${productReturning}
+      FROM products
+      WHERE id = $1 AND store_id = $2 AND deleted_at IS NULL;
+    `,
+    [id, storeId]
   );
 
   return result.rows[0];
 };
 
-const updateProduct = async (id, data) => {
+const updateProduct = async (id, storeId, data) => {
   const query = buildUpdateQuery({
     table: "products",
     id,
@@ -116,36 +119,41 @@ const updateProduct = async (id, data) => {
     returning: productReturning,
   });
 
-  if (!query) return findProductById(id);
+  if (!query) return findProductById(id, storeId);
+
+  query.text = query.text.replace(
+    `WHERE id = $${query.values.length}`,
+    `WHERE id = $${query.values.length} AND store_id = $${query.values.length + 1}`
+  );
+  query.values.push(storeId);
 
   const result = await pool.query(query.text, query.values);
 
   return result.rows[0];
 };
 
-const deleteProduct = async (id) => {
+const deleteProduct = async (id, storeId) => {
   const result = await pool.query(
     `
       UPDATE products
-      SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1 AND deleted_at IS NULL
+      SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP , is_active = false
+      WHERE id = $1 AND store_id = $2 AND deleted_at IS NULL
       RETURNING ${productReturning};
     `,
-    [id]
+    [id, storeId]
   );
 
   return result.rows[0];
 };
 
-const findProductsByIds = async (productIds) => {
+const findProductsByIds = async (productIds, storeId) => {
   const result = await pool.query(
     `
       SELECT ${productReturning}
       FROM products
-      WHERE id = ANY($1::int[])
-        AND deleted_at IS NULL;
+      WHERE id = ANY($1::int[]) AND store_id = $2 AND deleted_at IS NULL;
     `,
-    [productIds]
+    [productIds, storeId]
   );
 
   return result.rows;

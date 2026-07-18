@@ -5,33 +5,33 @@
 const customerRepository = require("./customer.repository");
 const { ensureFound, mapDatabaseError } = require("../../utils/service.helpers");
 
-const createCustomer = async (payload) => {
+const createCustomer = async (storeId, payload) => {
   try {
-    return await customerRepository.createCustomer(payload);
+    return await customerRepository.createCustomer(storeId, payload);
   } catch (error) {
     throw mapDatabaseError(error, "Unable to create customer");
   }
 };
 
-const getCustomers = async () => {
-  return customerRepository.findAllCustomers();
+const getCustomers = async (storeId) => {
+  return customerRepository.findAllCustomers(storeId);
 };
 
-const getCustomerById = async (id) => {
-  const customer = await customerRepository.findCustomerById(id);
+const getCustomerById = async (id, storeId) => {
+  const customer = await customerRepository.findCustomerById(id, storeId);
 
   return ensureFound(customer, "Customer not found");
 };
 
-const getOwnCustomerProfile = async (actor) => {
-  const customer = await customerRepository.findCustomerByEmail(actor.email);
+const getOwnCustomerProfile = async (actor, storeId) => {
+  const customer = await customerRepository.findCustomerByEmail(actor.email, storeId);
 
   return ensureFound(customer, "Customer profile not found");
 };
 
-const updateCustomer = async (id, payload) => {
+const updateCustomer = async (id, storeId, payload) => {
   try {
-    const customer = await customerRepository.updateCustomer(id, payload);
+    const customer = await customerRepository.updateCustomer(id, storeId, payload);
 
     return ensureFound(customer, "Customer not found");
   } catch (error) {
@@ -40,15 +40,15 @@ const updateCustomer = async (id, payload) => {
   }
 };
 
-const updateOwnCustomerProfile = async (actor, payload) => {
-  const customer = await getOwnCustomerProfile(actor);
+const updateOwnCustomerProfile = async (actor, storeId, payload) => {
+  const customer = await getOwnCustomerProfile(actor, storeId);
 
-  return updateCustomer(customer.id, payload);
+  return updateCustomer(customer.id, storeId, payload);
 };
 
-const deleteCustomer = async (id) => {
+const deleteCustomer = async (id, storeId) => {
   try {
-    const customer = await customerRepository.deleteCustomer(id);
+    const customer = await customerRepository.deleteCustomer(id, storeId);
 
     return ensureFound(customer, "Customer not found");
   } catch (error) {

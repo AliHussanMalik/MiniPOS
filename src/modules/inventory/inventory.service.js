@@ -13,12 +13,12 @@ const createInventoryItem = async (payload) => {
   }
 };
 
-const getInventory = async () => {
-  return inventoryRepository.findAllInventoryItems();
+const getInventory = async (storeId) => {
+  return inventoryRepository.findAllInventoryItems(storeId);
 };
 
-const getInventoryItemById = async (id) => {
-  const item = await inventoryRepository.findInventoryItemById(id);
+const getInventoryItemById = async (id, storeId) => {
+  const item = await inventoryRepository.findInventoryItemById(id, storeId);
 
   return ensureFound(item, "Inventory movement not found");
 };

@@ -5,13 +5,13 @@ const pool = require("../../config/db");
 const { buildUpdateQuery } = require("../../utils/repository.helpers");
 
 const inventoryReturning = `
-  id,
-  product_id AS "productId",
-  quantity,
-  movement_type AS "movementType",
-  notes,
-  created_at AS "createdAt",
-  updated_at AS "updatedAt"
+  im.id,
+  im.product_id AS "productId",
+  im.quantity,
+  im.movement_type AS "movementType",
+  im.notes,
+  im.created_at AS "createdAt",
+  im.updated_at AS "updatedAt"
 `;
 
 const createInventoryItem = async ({ productId, quantity, movementType, notes = null }) => {
@@ -19,7 +19,14 @@ const createInventoryItem = async ({ productId, quantity, movementType, notes = 
     `
       INSERT INTO inventory_movements (product_id, quantity, movement_type, notes)
       VALUES ($1, $2, $3, $4)
-      RETURNING ${inventoryReturning};
+      RETURNING
+        id,
+        product_id AS "productId",
+        quantity,
+        movement_type AS "movementType",
+        notes,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt";
     `,
     [productId, quantity, movementType, notes]
   );
@@ -27,24 +34,30 @@ const createInventoryItem = async ({ productId, quantity, movementType, notes = 
   return result.rows[0];
 };
 
-const findAllInventoryItems = async () => {
-  const result = await pool.query(`
-    SELECT ${inventoryReturning}
-    FROM inventory_movements
-    ORDER BY id;
-  `);
+const findAllInventoryItems = async (storeId) => {
+  const result = await pool.query(
+    `
+      SELECT ${inventoryReturning}
+      FROM inventory_movements im
+      JOIN products p ON p.id = im.product_id
+      WHERE p.store_id = $1
+      ORDER BY im.id;
+    `,
+    [storeId]
+  );
 
   return result.rows;
 };
 
-const findInventoryItemById = async (id) => {
+const findInventoryItemById = async (id, storeId) => {
   const result = await pool.query(
     `
       SELECT ${inventoryReturning}
-      FROM inventory_movements
-      WHERE id = $1;
+      FROM inventory_movements im
+      JOIN products p ON p.id = im.product_id
+      WHERE im.id = $1 AND p.store_id = $2;
     `,
-    [id]
+    [id, storeId]
   );
 
   return result.rows[0];
@@ -61,10 +74,24 @@ const updateInventoryItem = async (id, data) => {
       movementType: "movement_type",
       notes: "notes",
     },
-    returning: inventoryReturning,
+    returning: `
+      id,
+      product_id AS "productId",
+      quantity,
+      movement_type AS "movementType",
+      notes,
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    `,
   });
 
-  if (!query) return findInventoryItemById(id);
+  if (!query) {
+    const r = await pool.query(
+      `SELECT id, product_id AS "productId", quantity, movement_type AS "movementType", notes, created_at AS "createdAt", updated_at AS "updatedAt" FROM inventory_movements WHERE id = $1`,
+      [id]
+    );
+    return r.rows[0];
+  }
 
   const result = await pool.query(query.text, query.values);
 
@@ -76,7 +103,14 @@ const deleteInventoryItem = async (id) => {
     `
       DELETE FROM inventory_movements
       WHERE id = $1
-      RETURNING ${inventoryReturning};
+      RETURNING
+        id,
+        product_id AS "productId",
+        quantity,
+        movement_type AS "movementType",
+        notes,
+        created_at AS "createdAt",
+        updated_at AS "updatedAt";
     `,
     [id]
   );

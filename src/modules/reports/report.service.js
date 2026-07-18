@@ -4,16 +4,16 @@
 
 const reportRepository = require("./report.repository");
 
-const getReports = async (filters) => {
-  return reportRepository.findReports(filters);
+const getReports = async (storeId, filters) => {
+  return reportRepository.findReports(storeId, filters);
 };
 
-const getSalesReport = async (filters) => {
-  return reportRepository.findSalesReport(filters);
+const getSalesReport = async (storeId, filters) => {
+  return reportRepository.findSalesReport(storeId, filters);
 };
 
-const getInventoryReport = async (filters) => {
-  return reportRepository.findInventoryReport(filters);
+const getInventoryReport = async (storeId, filters) => {
+  return reportRepository.findInventoryReport(storeId, filters);
 };
 
 module.exports = {

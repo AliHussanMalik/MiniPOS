@@ -6,6 +6,7 @@ const { buildUpdateQuery } = require("../../utils/repository.helpers");
 
 const saleReturning = `
   id,
+  store_id AS "storeId",
   customer_id AS "customerId",
   user_id AS "userId",
   subtotal,
@@ -67,6 +68,7 @@ const insertSaleItems = async (client, saleId, items) => {
 };
 
 const createSale = async ({
+  storeId,
   customerId = null,
   userId,
   subtotal,
@@ -85,6 +87,7 @@ const createSale = async ({
     const saleResult = await client.query(
       `
         INSERT INTO sales (
+          store_id,
           customer_id,
           user_id,
           subtotal,
@@ -94,10 +97,10 @@ const createSale = async ({
           payment_method,
           status
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING ${saleReturning};
       `,
-      [customerId, userId, subtotal, discount, tax, totalAmount, paymentMethod, status]
+      [storeId, customerId, userId, subtotal, discount, tax, totalAmount, paymentMethod, status]
     );
 
     const sale = saleResult.rows[0];
@@ -117,44 +120,48 @@ const createSale = async ({
   }
 };
 
-const findAllSales = async () => {
-  const result = await pool.query(`
-    SELECT ${saleReturning}
-    FROM sales
-    ORDER BY id;
-  `);
-
-  return result.rows;
-};
-
-const findSalesByUserId = async (userId) => {
+const findAllSales = async (storeId) => {
   const result = await pool.query(
     `
       SELECT ${saleReturning}
       FROM sales
-      WHERE user_id = $1
+      WHERE store_id = $1
       ORDER BY id;
     `,
-    [userId]
+    [storeId]
   );
 
   return result.rows;
 };
 
-const findSaleById = async (id) => {
+const findSalesByUserId = async (userId, storeId) => {
   const result = await pool.query(
     `
       SELECT ${saleReturning}
       FROM sales
-      WHERE id = $1;
+      WHERE user_id = $1 AND store_id = $2
+      ORDER BY id;
     `,
-    [id]
+    [userId, storeId]
+  );
+
+  return result.rows;
+};
+
+const findSaleById = async (id, storeId) => {
+  const result = await pool.query(
+    `
+      SELECT ${saleReturning}
+      FROM sales
+      WHERE id = $1 AND store_id = $2;
+    `,
+    [id, storeId]
   );
 
   return attachItems(result.rows[0]);
 };
 
-const updateSale = async (id, data) => {
+const updateSale = async (id, storeId, data) => {
   const client = await pool.connect();
 
   try {
@@ -179,6 +186,11 @@ const updateSale = async (id, data) => {
     });
 
     if (query) {
+      query.text = query.text.replace(
+        `WHERE id = $${query.values.length}`,
+        `WHERE id = $${query.values.length} AND store_id = $${query.values.length + 1}`
+      );
+      query.values.push(storeId);
       const saleResult = await client.query(query.text, query.values);
       sale = saleResult.rows[0];
     } else {
@@ -186,9 +198,9 @@ const updateSale = async (id, data) => {
         `
           SELECT ${saleReturning}
           FROM sales
-          WHERE id = $1;
+          WHERE id = $1 AND store_id = $2;
         `,
-        [id]
+        [id, storeId]
       );
       sale = saleResult.rows[0];
     }
@@ -229,20 +241,31 @@ const updateSale = async (id, data) => {
   }
 };
 
-const deleteSale = async (id) => {
+const deleteSale = async (id, storeId) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    // Verify sale belongs to store before deleting
+    const check = await client.query(
+      "SELECT id FROM sales WHERE id = $1 AND store_id = $2;",
+      [id, storeId]
+    );
+    if (check.rows.length === 0) {
+      await client.query("COMMIT");
+      return undefined;
+    }
+
     await client.query("DELETE FROM sale_items WHERE sale_id = $1;", [id]);
 
     const result = await client.query(
       `
         DELETE FROM sales
-        WHERE id = $1
+        WHERE id = $1 AND store_id = $2
         RETURNING ${saleReturning};
       `,
-      [id]
+      [id, storeId]
     );
 
     await client.query("COMMIT");

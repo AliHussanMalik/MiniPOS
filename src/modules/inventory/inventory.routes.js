@@ -7,15 +7,15 @@ const inventoryController = require("./inventory.controller");
 const validate = require("../../middlewares/validation.middleware");
 const authenticate = require("../../middlewares/auth.middleware");
 const authorize = require("../../middlewares/role.middleware");
+const requireStore = require("../../middlewares/store.middleware");
 const {
   createInventoryItemSchema,
   updateInventoryItemSchema,
 } = require("./inventory.validation");
-const { ROLES } = require("../../utils/constants");
 
 const router = express.Router();
 
-router.use(authenticate, authorize(...STAFF_ROLES));
+router.use(authenticate, requireStore, authorize(...STAFF_ROLES));
 
 router.post("/", validate(createInventoryItemSchema), inventoryController.createInventoryItem);
 router.get("/", inventoryController.getInventory);

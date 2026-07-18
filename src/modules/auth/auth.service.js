@@ -10,6 +10,7 @@ const toAuthResponse = (user) => {
     email: user.email,
     role: user.role,
     fullName: user.fullName,
+    storeId: user.storeId,
   });
 
   return { user, token };
@@ -18,10 +19,8 @@ const toAuthResponse = (user) => {
 const signup = async (payload) => {
   const role = payload.role || ROLES.CUSTOMER;
 
-  // if (!CUSTOMER_ROLES.includes(role)) {
-  //   throw createError(400, "Signup is only available for the CUSTOMER role");
   if (![ROLES.OWNER, ROLES.CUSTOMER].includes(role)) {
-  throw createError(400, "Invalid role");
+    throw createError(400, "Invalid role");
   }
 
   let user;
@@ -35,10 +34,9 @@ const signup = async (payload) => {
       isActive: true,
     });
   } catch (error) {
-    console.error(error)
-    throw error
-    // throw mapDatabaseError(error, "Unable to create signup user");
+    throw mapDatabaseError(error, "Unable to create signup user");
   }
+
 
   return toAuthResponse(user);
 };

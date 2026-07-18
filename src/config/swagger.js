@@ -66,9 +66,10 @@ const openApiSpec = {
   tags: [
     { name: "Auth" },
     { name: "Users" },
+    { name: "Stores" },
     { name: "Products" },
     { name: "Categories" },
-    { name: "Customers" },
+    // { name: "Customers" },
     { name: "Inventory" },
     { name: "Sales" },
     { name: "Reports" },
@@ -193,6 +194,16 @@ const openApiSpec = {
           minimumStock: { type: "integer", minimum: 0 },
           unit: { type: "string", example: "pcs" },
           isActive: { type: "boolean" },
+        },
+      },
+      StoreRequest: {
+        type: "object",
+        required: ["name", "email", "phone","address"],
+        properties:{
+          name: {type: "sring", example: "Ali"},
+          email: {type: "string", example: "ali@hussan.com"},
+          phone: {type: "integer", example: "012345678"},
+          address: {type: "string", example: "house 1A"},
         },
       },
       Customer: {
@@ -328,7 +339,10 @@ const openApiSpec = {
                 type: "object",
                 required: ["email"],
                 properties: {
+                  name: {type: "string", format: "name", example: "Name"},
                   email: { type: "string", format: "email", example: "customer@example.com" },
+                  phone: {type: "integer", format:"phone", example: "098765432"},
+                  address:{address: "string", format: "Address", example: "House 123"} ,
                 },
               },
             },
@@ -354,7 +368,7 @@ const openApiSpec = {
     "/users": {
       get: protectedOperation({
         tags: ["Users"],
-        summary: "List users",
+        summary: "List users (Owner Only)",
         responses: { 200: listResponse("Users", "#/components/schemas/User") },
       }),
       post: protectedOperation({
@@ -384,6 +398,44 @@ const openApiSpec = {
         parameters: [idParameter],
         responses: { 200: { description: "User deleted" } },
       }),
+    },
+        "/stores": {
+      get: protectedOperation({ tags: ["Stores"], summary: "List of Stores", responses: {200: successResponse("Stores","#/components/schemas/stores")}}),
+      post: protectedOperation({
+        tags: ["Stores"],
+        summary: "Create Store",
+        requestBody:{required: true,
+          content:{
+            "applicati/json":{
+              schema:{
+                type: "object",
+                required: ["email"],
+                properties:{
+                  name: {type: "sring", example: "Ali"},
+                  slug: {type: "sring", example: "Ali_Store"},
+                  email: {type: "string", example: "ali@hussan.com"},
+                  phone: {type: "integer", example: "012345678"},
+                  address: {type: "string", example: "house 1A"},
+
+                }
+              }
+            }
+          }
+        },
+        // jsonBody("#/components/schemas/stores"),
+        response: {201:successResponse("Store Created","#/components/schemas/stores")},
+      }),
+    },
+    "store/{id}":{
+      get: protectedOperation({tags: ["Inventory"], summary: "Get Store by ID", parameters:[idParameter],responses:{200: successResponse("Inventory movement","#/componens/schemas/stores")}}),
+      put: protectedOperation({
+        tags: ["Stores"],
+        summary: "Update Store",
+        parameters: [idParameter],
+        requestBody: jsonBody("#/conponens/schemas/stores"),
+        responses: {200: successResponse("store update","#/components/schemas/stores")},
+      }),
+      delete: protectedOperation({tags:["Stores"],summary: "Delete Store", parameters: [idParameter], responses: {200: { description: "store deleted" } } } ),
     },
     "/products": {
       get: protectedOperation({ tags: ["Products"], summary: "List products", responses: { 200: listResponse("Products", "#/components/schemas/Product") } }),
@@ -459,6 +511,7 @@ const openApiSpec = {
     //   }),
     //   delete: protectedOperation({ tags: ["Customers"], summary: "Delete customer", parameters: [idParameter], responses: { 200: { description: "Customer deleted" } } }),
     // },
+
     "/inventory": {
       get: protectedOperation({ tags: ["Inventory"], summary: "List inventory movements (owner only)", responses: { 200: listResponse("Inventory movements", "#/components/schemas/InventoryMovement") } }),
       post: protectedOperation({

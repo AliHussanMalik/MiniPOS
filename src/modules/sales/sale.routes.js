@@ -6,12 +6,13 @@ const saleController = require("./sale.controller");
 const validate = require("../../middlewares/validation.middleware");
 const authenticate = require("../../middlewares/auth.middleware");
 const authorize = require("../../middlewares/role.middleware");
+const requireStore = require("../../middlewares/store.middleware");
 const { createSaleSchema, updateSaleSchema } = require("./sale.validation");
 const { ROLES, CUSTOMER_ROLES } = require("../../utils/constants");
 
 const router = express.Router();
 
-router.use(authenticate);
+router.use(authenticate, requireStore);
 
 router.post("/", authorize(...STAFF_ROLES, ROLES.CASHIER), validate(createSaleSchema), saleController.createSale);
 router.get("/", authorize(...STAFF_ROLES), saleController.getSales);

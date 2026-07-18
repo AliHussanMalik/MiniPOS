@@ -1,6 +1,5 @@
 // Inventory controller
 // Handles incoming HTTP requests for inventory and sends HTTP responses.
-// Business rules should live in the service layer when implementation is added.
 
 const inventoryService = require("./inventory.service");
 const inventoryDto = require("./inventory.dto");
@@ -13,7 +12,7 @@ const createInventoryItem = asyncHandler(async (req, res) => {
 });
 
 const getInventory = asyncHandler(async (req, res) => {
-  const items = await inventoryService.getInventory();
+  const items = await inventoryService.getInventory(req.storeId);
 
   res.status(200).json({ data: inventoryDto.toInventoryListResponseDto(items) });
 });
@@ -22,7 +21,7 @@ const getInventoryItemById = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  const item = await inventoryService.getInventoryItemById(id);
+  const item = await inventoryService.getInventoryItemById(id, req.storeId);
 
   res.status(200).json({ data: inventoryDto.toInventoryResponseDto(item) });
 });

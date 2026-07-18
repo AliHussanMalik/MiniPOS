@@ -1,5 +1,5 @@
 
-CREATE TABLE categories
+CREATE TABLE IF NOT Exists categories
 (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
