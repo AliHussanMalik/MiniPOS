@@ -6,7 +6,7 @@ const inventoryDto = require("./inventory.dto");
 const { asyncHandler, requireId } = require("../../utils/controller.helpers");
 
 const createInventoryItem = asyncHandler(async (req, res) => {
-  const item = await inventoryService.createInventoryItem(inventoryDto.toCreateInventoryRequestDto(req.body));
+  const item = await inventoryService.createInventoryItem(req.storeId, inventoryDto.toCreateInventoryRequestDto(req.body));
 
   res.status(201).json({ message: "Inventory movement created successfully", data: inventoryDto.toInventoryResponseDto(item) });
 });
@@ -30,7 +30,7 @@ const updateInventoryItem = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  const item = await inventoryService.updateInventoryItem(id, inventoryDto.toUpdateInventoryRequestDto(req.body));
+  const item = await inventoryService.updateInventoryItem(id, req.storeId, inventoryDto.toUpdateInventoryRequestDto(req.body));
 
   res.status(200).json({ message: "Inventory movement updated successfully", data: inventoryDto.toInventoryResponseDto(item) });
 });
@@ -39,7 +39,7 @@ const deleteInventoryItem = asyncHandler(async (req, res) => {
   const id = requireId(req, res);
   if (!id) return;
 
-  await inventoryService.deleteInventoryItem(id);
+  await inventoryService.deleteInventoryItem(id, req.storeId);
 
   res.status(200).json({ message: "Inventory movement deleted successfully" });
 });

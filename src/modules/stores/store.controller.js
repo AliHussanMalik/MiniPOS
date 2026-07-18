@@ -27,12 +27,8 @@ const getStoreById = asyncHandler(async (req, res) => {
   if (!id) return;
 
   const store = await storeService.getStoreById(id);
-
-  // Authorize: user must be owner or a store_user member
-  if (req.user.role !== "OWNER") {
-    // If not OWNER, verify they are members in the store (this check can be handled by store_users query or middleware)
-    // For simplicity, storeService has already queried or we can verify
-  }
+  const hasAccess = await storeService.canAccessStore(id, req.user);
+  if (!hasAccess) return res.status(403).json({ message: "Access denied to this store" });
 
   res.status(200).json({
     data: storeDto.toStoreResponseDto(store),
@@ -74,7 +70,7 @@ const deleteStore = asyncHandler(async (req, res) => {
 
 const addUserToStore = asyncHandler(async (req, res) => {
   const storeId = Number(req.params.id);
-  if (isNaN(storeId)) {
+  if (!Number.isInteger(storeId) || storeId < 1) {
     return res.status(400).json({ message: "Invalid Store ID" });
   }
 
@@ -93,7 +89,7 @@ const addUserToStore = asyncHandler(async (req, res) => {
 
 const getStoreUsers = asyncHandler(async (req, res) => {
   const storeId = Number(req.params.id);
-  if (isNaN(storeId)) {
+  if (!Number.isInteger(storeId) || storeId < 1) {
     return res.status(400).json({ message: "Invalid Store ID" });
   }
 
@@ -117,7 +113,7 @@ const getStoreUsers = asyncHandler(async (req, res) => {
 const removeUserFromStore = asyncHandler(async (req, res) => {
   const storeId = Number(req.params.id);
   const userId = Number(req.params.userId);
-  if (isNaN(storeId) || isNaN(userId)) {
+  if (!Number.isInteger(storeId) || storeId < 1 || !Number.isInteger(userId) || userId < 1) {
     return res.status(400).json({ message: "Invalid Store or User ID" });
   }
 

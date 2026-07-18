@@ -26,7 +26,7 @@ const requireStore = async (req, res, next) => {
 
   try {
     const storeIdNum = Number(storeId);
-    if (isNaN(storeIdNum)) {
+    if (!Number.isInteger(storeIdNum) || storeIdNum < 1) {
       return res.status(400).json({ message: "Invalid Store ID" });
     }
 

@@ -1,22 +1,14 @@
-const inventoryService = require("../inventory/inventory.service");
 const productRepository = require("./product.repository");
+const categoryRepository = require("../categories/category.repository");
 const { ensureFound, mapDatabaseError } = require("../../utils/service.helpers");
 
 const createProduct = async (storeId, payload) => {
   try {
-    const product = await productRepository.createProduct(storeId, payload);
-
-    if (product.stockQuantity > 0) {
-      await inventoryService.createInventoryItem({
-        productId: product.id,
-        quantity: product.stockQuantity,
-        movementType: "STOCK_IN",
-        notes: "Initial Stock",
-      });
-    }
-
-    return product;
+    const category = await categoryRepository.findCategoryById(payload.categoryId, storeId);
+    ensureFound(category, "Category not found");
+    return await productRepository.createProduct(storeId, payload);
   } catch (error) {
+    if (error.statusCode) throw error;
     throw mapDatabaseError(error, "Unable to create product");
   }
 };
@@ -33,6 +25,10 @@ const getProductById = async (id, storeId) => {
 
 const updateProduct = async (id, storeId, payload) => {
   try {
+    if (payload.categoryId) {
+      const category = await categoryRepository.findCategoryById(payload.categoryId, storeId);
+      ensureFound(category, "Category not found");
+    }
     const product = await productRepository.updateProduct(id, storeId, payload);
 
     return ensureFound(product, "Product not found");

@@ -15,13 +15,14 @@ const productFields = [
 ];
 
 const productResponseFields = ["id", ...productFields, "createdAt", "updatedAt"];
+const productUpdateFields = productFields.filter((field) => field !== "stockQuantity");
 
 const toCreateProductRequestDto = (body) => {
   return pickDefined(body, productFields);
 };
 
 const toUpdateProductRequestDto = (body) => {
-  return pickDefined(body, productFields);
+  return pickDefined(body, productUpdateFields);
 };
 
 const toProductResponseDto = (product) => {

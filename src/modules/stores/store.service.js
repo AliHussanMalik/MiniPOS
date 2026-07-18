@@ -18,7 +18,7 @@ const createStore = async (ownerId, payload) => {
   const slug = payload.slug || slugify(payload.name);
 
   try {
-    const store = await storeRepository.createStore({
+    return await storeRepository.createStore({
       ownerId,
       name: payload.name,
       slug,
@@ -27,19 +27,8 @@ const createStore = async (ownerId, payload) => {
       address: payload.address,
     });
 
-    // Automatically link owner to the store in store_users
-    await storeRepository.addUserToStore({
-      storeId: store.id,
-      userId: ownerId,
-      isActive: true,
-    });
-
-    return store;
   } catch (error) {
-
-    console.error({    code: error.code,
-    message: error.message,
-    detail: error.detail,})
+    if (error.statusCode) throw error;
     throw mapDatabaseError(error, "Unable to create store");
   }
 };
@@ -48,6 +37,8 @@ const getStoreById = async (id) => {
   const store = await storeRepository.findStoreById(id);
   return ensureFound(store, "Store not found");
 };
+
+const canAccessStore = (id, actor) => storeRepository.hasStoreAccess(id, actor.id, actor.role);
 
 const getStores = async (actor) => {
   if (actor.role === "OWNER") {
@@ -110,6 +101,7 @@ const removeUserFromStore = async (storeId, userId) => {
 module.exports = {
   createStore,
   getStoreById,
+  canAccessStore,
   getStores,
   updateStore,
   deleteStore,

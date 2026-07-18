@@ -2,70 +2,21 @@
 // Contains sale-related business logic and coordinates between controllers
 // and repositories.
 
-const productService = require("../products/product.service");
 const saleRepository = require("./sale.repository");
 const { ensureFound, mapDatabaseError,createError } = require("../../utils/service.helpers");
 
-const TAX_RATE = 0.17;
-
 const createSale = async (storeId, payload, actor) => {
   try {
-    const productIds = payload.items.map(item => item.productId);
-    const products = await productService.findProductsByIds(productIds, storeId);
-
-    if (products.length !== productIds.length){
-      throw createError(404, "One one more products not found")
-    }
-
-    let subtotal = 0;
-
-    const items = payload.items.map(item => {
-      const product = products.find(p=> p.id === item.productId);
-
-      if(!product){
-        throw createError( 404 , `Product ${item.productId} was not found`);
-      }
-
-      if(!product.isActive){
-        throw createError(400, `${product.name} is inactive`)
-      }
-
-      if (product.stockQuantity < item.quantity){
-        throw createError(400, `insufficent stock for ${product.name}`)
-      }
-
-      const unitPrice = Number(product.sellingPrice);
-      const itemSubtotal = unitPrice * item.quantity;
-      
-      subtotal+= itemSubtotal;
-
-      return{
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice,
-        subtotal: itemSubtotal,
-      };
-    }
-  );
-
-  const discount = payload.discount ?? 0;
-  const tax = subtotal * TAX_RATE;
-  const totalAmount = subtotal - discount + tax;
-
     return await saleRepository.createSale({
       storeId,
       customerId: payload.customerId,
       userId: actor.id,
-      subtotal,
-      discount,
-      tax,
-      totalAmount,
+      discount: payload.discount,
       paymentMethod: payload.paymentMethod,
-      status: payload.status,
-      items,
+      items: payload.items,
     });
   } catch (error) {
-    console.error(error)
+    if (error.statusCode) throw error;
     throw mapDatabaseError(error, "Unable to create sale");
   }
 };
@@ -86,7 +37,7 @@ const getSaleById = async (id, storeId) => {
 
 const updateSale = async (id, storeId, payload) => {
   try {
-    const sale = await saleRepository.updateSale(id, storeId, payload);
+    const sale = await saleRepository.cancelSale(id, storeId);
 
     return ensureFound(sale, "Sale not found");
   } catch (error) {
@@ -96,14 +47,7 @@ const updateSale = async (id, storeId, payload) => {
 };
 
 const deleteSale = async (id, storeId) => {
-  try {
-    const sale = await saleRepository.deleteSale(id, storeId);
-
-    return ensureFound(sale, "Sale not found");
-  } catch (error) {
-    if (error.statusCode) throw error;
-    throw mapDatabaseError(error, "Unable to delete sale");
-  }
+  throw createError(409, "Sales cannot be deleted. Cancel the sale instead.");
 };
 
 module.exports = {

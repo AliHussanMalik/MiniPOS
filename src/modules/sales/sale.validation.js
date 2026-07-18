@@ -18,36 +18,20 @@ const createSaleSchema = {
     type: "string",
     allowedValues: ["CASH", "CARD", "ONLINE"],
   },
-  status: {
-    type: "string",
-    allowedValues: ["COMPLETED", "CANCELLED"],
-  },
   items: {
     required: true,
     type: "array",
+    minItems: 1,
     itemSchema: saleItemSchema,
   },
 };
 
 const updateSaleSchema = {
-  customerId: { type: "integer", min: 1 },
-  // userId: { type: "integer", min: 1 },
-  // subtotal: { type: "number", min: 0 },
-  // discount: { type: "number", min: 0 },
-  // tax: { type: "number", min: 0 },
-  // totalAmount: { type: "number", min: 0 },
-  paymentMethod: {
-    type: "string",
-    allowedValues: ["CASH", "CARD", "ONLINE"],
-  },
   status: {
+    required: true,
     type: "string",
-    allowedValues: ["COMPLETED", "CANCELLED"],
+    allowedValues: ["CANCELLED"],
   },
-  // items: {
-  //   type: "array",
-  //   itemSchema: saleItemSchema,
-  // },
 };
 
 module.exports = {

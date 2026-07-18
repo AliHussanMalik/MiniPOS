@@ -1,18 +1,9 @@
 const { pickDefined, toDtoList } = require("../../utils/dto.helpers");
 
 const saleItemFields = ["productId", "quantity", "unitPrice", "subtotal"];
-const saleFields = [
-  "customerId",
-  "subtotal",
-  "discount",
-  "tax",
-  "totalAmount",
-  "paymentMethod",
-  "status",
-  "items",
-];
+const saleFields = ["customerId", "discount", "paymentMethod", "items"];
 
-const saleUpdateFields = ["userId", ...saleFields];
+const saleUpdateFields = ["status"];
 const saleResponseFields = ["id", "customerId", "userId", "subtotal", "discount", "tax", "totalAmount", "paymentMethod", "status", "createdAt", "updatedAt"];
 const saleItemResponseFields = ["id", "saleId", ...saleItemFields, "createdAt"];
 
