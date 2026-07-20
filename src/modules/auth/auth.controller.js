@@ -3,6 +3,8 @@ const authDto = require("./auth.dto");
 const { asyncHandler } = require("../../utils/controller.helpers");
 
 const signup = asyncHandler(async (req, res) => {
+  console.log("Backend Signup Hit")
+  console.log(req.body)
   const result = await authService.signup(authDto.toSignupRequestDto(req.body));
 
   res.status(201).json({ message: "Signup successful", data: authDto.toAuthResponseDto(result) });
