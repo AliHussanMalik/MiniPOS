@@ -12,6 +12,7 @@ const inventoryRoutes = require("../modules/inventory/inventory.routes");
 const saleRoutes = require("../modules/sales/sale.routes");
 const reportRoutes = require("../modules/reports/report.routes");
 const storeRoutes = require("../modules/stores/store.routes");
+const dashboardRoutes = require("../modules/dashboard/dashboard.routes");
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/inventory", inventoryRoutes);
 router.use("/sales", saleRoutes);
 router.use("/reports", reportRoutes);
 router.use("/stores", storeRoutes);
+router.use("/dashboard", dashboardRoutes);
 
 module.exports = router;
