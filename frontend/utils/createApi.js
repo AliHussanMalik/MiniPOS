@@ -2,19 +2,23 @@ const axios = require("axios")
 // const api = require("../config/api");
 
 const createApi = (req) => {
-  return axios.create({
-    baseURL: process.env.API_BASE_URL,
-    timeout: 10000,
-    headers:{
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Authorization:`Bearer ${req.session.token}`
-    }
-  })
-//   api.defaults.headers.common.Authorization =
-//     `Bearer ${req.session.token}`;
+  const storeId = req?.session?.currentStoreId || req?.session?.user?.storeId || "";
 
-//   return api;
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${req?.session?.token || ""}`,
+  };
+
+  if (storeId) {
+    headers["X-Store-Id"] = storeId;
+  }
+
+  return axios.create({
+    baseURL: process.env.API_BASE_URL || "http://localhost:3000/api",
+    timeout: 10000,
+    headers,
+  });
 };
 
 module.exports = createApi;
