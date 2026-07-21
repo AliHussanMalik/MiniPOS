@@ -1,4 +1,13 @@
+const express = require("express");
 const { requirePageAuth } = require("../middleware/auth.middleware");
+const controller = require("../controllers/category.controller");
 
-const router = require("express").Router(); const controller = require("../controllers/category.controller");
-router.get("/", controller.index); module.exports = router;
+const router = express.Router();
+
+router.use(requirePageAuth);
+
+router.get("/", controller.index);
+router.post("/create", controller.postCreate);
+router.post("/:id/delete", controller.postDelete);
+
+module.exports = router;

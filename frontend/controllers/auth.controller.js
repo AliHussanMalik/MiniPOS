@@ -1,52 +1,35 @@
 const authService = require("../services/auth.service");
+const storesService = require("../services/stores.service");
 
 const showLogin = (req, res) => {
-  res.redirect("auth/login", {
-    title: "Login"
-  });
+  res.redirect("/auth/login");
 };
 
 const showRegister = (req, res) => {
-  res.redirect("auth/register", {
-    title: "Register"
-  });
+  res.redirect("/auth/register");
 };
 
 const login = async (req, res, next) => {
-  console.log("1. Log In Controller Hit")
+  console.log("1. Log In Controller Hit");
   try {
-    console.log("2. Request Body", req.body)
-
-    // try{
-
     const result = await authService.login({
       email: req.body.email,
       password: req.body.password,
     });
-    console.log("3. Backend Response:", result)
-    console.log("4. Redirecting to /Dashboard:")
-    // }catch(e){
-    //   console.error("Axiouse Error")
-    //   console.error(e.code)
-    //   console.error(e.message)
-    //   console.error(e.response?.status)
-    //   console.error(e.response?.data)
-
-    //   throw e;
-    // }
-
-
 
     req.session.user = result.user;
     req.session.token = result.token;
 
-    console.log("========== LOGIN SESSION ==========");
-    console.dir(req.session, { depth: null });
-    console.log("==================================");
-
-    console.log("4. Session Stored")
-
-    console.log("Session before redirect:", req.session)
+    // Fetch user stores to set default store in session if available
+    try {
+      const stores = await storesService.getStores(req);
+      if (Array.isArray(stores) && stores.length > 0) {
+        req.session.currentStoreId = stores[0].id;
+        req.session.currentStore = stores[0];
+      }
+    } catch (storeErr) {
+      console.warn("Could not fetch user stores on login:", storeErr.message);
+    }
 
     req.flash("success", "Welcome back!");
 
@@ -54,10 +37,8 @@ const login = async (req, res, next) => {
       if (err) {
         return next(err);
       }
-      return res.redirect("/dashboard")
-    })
-
-    // return res.redirect("/dashboard");
+      return res.redirect("/dashboard");
+    });
   } catch (error) {
     req.flash(
       "error",
