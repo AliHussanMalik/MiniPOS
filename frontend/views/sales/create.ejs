@@ -47,7 +47,7 @@
               <option value="">-- Choose Product --</option>
               <% if (typeof products !== 'undefined' && products) { %>
                 <% products.forEach(function(p) { %>
-                  <option value="<%= p.id %>"><%= p.name %> - $<%= Number(p.sellingPrice || 0).toFixed(2) %> (In Stock: <%= p.stockQuantity %>)</option>
+                  <option value="<%= p.id %>" <%= (typeof selectedProductId !== 'undefined' && Number(selectedProductId) === p.id) ? 'selected' : '' %>><%= p.name %> - $<%= Number(p.sellingPrice || 0).toFixed(2) %> (In Stock: <%= p.stockQuantity %>)</option>
                 <% }); %>
               <% } %>
             </select>

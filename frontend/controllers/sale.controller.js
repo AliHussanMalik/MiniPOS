@@ -37,6 +37,7 @@ const create = async (req, res, next) => {
       page: "sales/create",
       products,
       customers,
+      selectedProductId: req.query.productId || null,
     });
   } catch (err) {
     next(err);
