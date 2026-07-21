@@ -1,1 +1,28 @@
-<nav class="navbar navbar-expand bg-white border-bottom px-3"><a class="navbar-brand fw-semibold" href="/dashboard">MiniPOS</a><div class="ms-auto"><a class="btn btn-sm btn-outline-secondary" href="/auth/login">Sign out</a></div></nav>
+<nav class="navbar navbar-expand bg-white border-bottom px-4 py-2">
+  <a class="navbar-brand fw-bold fs-5 text-primary" href="/dashboard">🛒 MiniPOS</a>
+  
+  <div class="ms-auto d-flex align-items-center gap-3">
+    <% if (typeof currentStore !== 'undefined' && currentStore) { %>
+      <a href="/stores" class="badge bg-light text-dark text-decoration-none border px-3 py-2">
+        🏬 <strong><%= currentStore.name %></strong>
+      </a>
+    <% } else if (typeof currentStoreId !== 'undefined' && currentStoreId) { %>
+      <a href="/stores" class="badge bg-light text-dark text-decoration-none border px-3 py-2">
+        🏬 Store #<%= currentStoreId %>
+      </a>
+    <% } else { %>
+      <a href="/stores" class="badge bg-warning text-dark text-decoration-none px-3 py-2">
+        ⚠️ Select Store
+      </a>
+    <% } %>
+
+    <% if (typeof user !== 'undefined' && user) { %>
+      <span class="text-secondary small fw-medium">👤 <%= user.fullName || user.email %> (<%= user.role %>)</span>
+      <form action="/auth/logout" method="POST" class="d-inline mb-0">
+        <button type="submit" class="btn btn-sm btn-outline-danger px-3">Sign out</button>
+      </form>
+    <% } else { %>
+      <a class="btn btn-sm btn-outline-primary px-3" href="/auth/login">Sign in</a>
+    <% } %>
+  </div>
+</nav>

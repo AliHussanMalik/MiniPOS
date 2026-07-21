@@ -1,1 +1,27 @@
-<!doctype html><html lang="en"><head><%- include("../partials/head", { title }) %></head><body><%- include("../partials/navbar") %><div class="app-shell"><%- include("../partials/sidebar") %><main class="content p-4"><%- body %></main></div><%- include("../partials/footer") %><%- include("../partials/alerts") %><%- include("../partials/scripts") %></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <%- include("../partials/head", { title }) %>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: #f8f9fa; }
+    .app-shell { display: flex; min-height: calc(100vh - 57px); }
+    .content { flex: 1; background-color: #f8f9fa; }
+  </style>
+</head>
+<body>
+  <%- include("../partials/navbar") %>
+  <div class="app-shell">
+    <%- include("../partials/sidebar") %>
+    <main class="content p-4">
+      <%- include("../partials/alerts") %>
+      <% if (typeof body !== 'undefined' && body) { %>
+        <%- body %>
+      <% } else if (typeof page !== 'undefined' && page) { %>
+        <%- include("../" + page) %>
+      <% } %>
+    </main>
+  </div>
+  <%- include("../partials/footer") %>
+  <%- include("../partials/scripts") %>
+</body>
+</html>

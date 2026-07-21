@@ -1,1 +1,101 @@
-<h1 class="h3 mb-4">Inventory</h1><div class="table-responsive"><table class="table"><thead><tr><th>Product</th><th>Quantity</th><th>Movement</th><th>Notes</th></tr></thead><tbody id="inventory-table"></tbody></table></div><script src="/frontend-assets/js/inventory.js"></script>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0 fw-bold text-dark">Inventory Stock Movements</h1>
+    <p class="text-muted small mb-0">Record stock ins, stock outs, and stock level adjustments.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Stock Movement Form -->
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="card-title mb-0 fw-bold">Record Stock Movement</h5>
+      </div>
+      <div class="card-body">
+        <form action="/inventory/create" method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Select Product *</label>
+            <select class="form-select" name="productId" required>
+              <option value="">-- Choose Product --</option>
+              <% if (typeof products !== 'undefined' && products) { %>
+                <% products.forEach(function(p) { %>
+                  <option value="<%= p.id %>"><%= p.name %> (Current Stock: <%= p.stockQuantity %>)</option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Movement Type *</label>
+            <select class="form-select" name="movementType" required>
+              <option value="STOCK_IN">Stock In (+)</option>
+              <option value="STOCK_OUT">Stock Out (-)</option>
+              <option value="ADJUSTMENT" selected>Stock Adjustment</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Quantity *</label>
+            <input class="form-control" name="quantity" type="number" min="0" value="1" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Notes / Reason</label>
+            <textarea class="form-control" name="notes" rows="2" placeholder="e.g. Restock shipment received..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 fw-bold">Submit Movement</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Movements Table -->
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Product</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Notes</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (typeof inventory !== 'undefined' && inventory && inventory.length > 0) { %>
+                <% inventory.forEach(function(item) { %>
+                  <tr>
+                    <td class="text-muted small">#<%= item.id %></td>
+                    <td class="fw-bold text-dark"><%= item.productName || ('Product #' + item.productId) %></td>
+                    <td>
+                      <% if (item.movementType === 'STOCK_IN') { %>
+                        <span class="badge bg-success">STOCK IN</span>
+                      <% } else if (item.movementType === 'STOCK_OUT') { %>
+                        <span class="badge bg-danger">STOCK OUT</span>
+                      <% } else { %>
+                        <span class="badge bg-warning text-dark">ADJUSTMENT</span>
+                      <% } %>
+                    </td>
+                    <td class="fw-bold"><%= item.quantity %></td>
+                    <td class="text-muted small"><%= item.notes || 'N/A' %></td>
+                    <td class="text-muted small"><%= item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A' %></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="text-center py-4 text-muted">No inventory movements recorded yet. Use the form to submit one.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

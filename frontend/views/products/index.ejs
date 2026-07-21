@@ -1,1 +1,74 @@
-<div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0">Products</h1><a class="btn btn-primary" href="/products/create">Add product</a></div><div class="table-responsive"><table class="table"><thead><tr><th>Name</th><th>SKU</th><th>Price</th><th>Stock</th></tr></thead><tbody id="products-table"></tbody></table></div><script src="/frontend-assets/js/products.js"></script>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0 fw-bold text-dark">Product Management</h1>
+    <p class="text-muted small mb-0">View, add, edit, and manage store products.</p>
+  </div>
+  <a class="btn btn-primary px-3 fw-bold" href="/products/create">
+    + Add New Product
+  </a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-3">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>SKU / Barcode</th>
+            <th>Category</th>
+            <th>Cost Price</th>
+            <th>Selling Price</th>
+            <th>Stock Qty</th>
+            <th>Unit</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (typeof products !== 'undefined' && products && products.length > 0) { %>
+            <% products.forEach(function(prod) { %>
+              <tr>
+                <td class="text-muted small">#<%= prod.id %></td>
+                <td class="fw-bold text-dark"><%= prod.name %></td>
+                <td>
+                  <span class="badge bg-light text-dark"><%= prod.sku || prod.barcode || 'N/A' %></span>
+                </td>
+                <td>
+                  <% 
+                    let catName = 'Uncategorized';
+                    if (typeof categories !== 'undefined' && categories) {
+                      let matched = categories.find(c => c.id === prod.categoryId);
+                      if (matched) catName = matched.name;
+                    }
+                  %>
+                  <span class="badge bg-secondary"><%= catName %></span>
+                </td>
+                <td>$<%= Number(prod.costPrice || 0).toFixed(2) %></td>
+                <td class="fw-bold text-success">$<%= Number(prod.sellingPrice || 0).toFixed(2) %></td>
+                <td>
+                  <% if (prod.stockQuantity <= (prod.minimumStock || 5)) { %>
+                    <span class="badge bg-danger"><%= prod.stockQuantity %> (Low Stock)</span>
+                  <% } else { %>
+                    <span class="badge bg-success"><%= prod.stockQuantity %></span>
+                  <% } %>
+                </td>
+                <td class="text-muted small"><%= prod.unit %></td>
+                <td class="text-end">
+                  <a href="/products/<%= prod.id %>/edit" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                  <form action="/products/<%= prod.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">No products found. Click "+ Add New Product" to create one.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

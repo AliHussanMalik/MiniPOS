@@ -1,1 +1,64 @@
-<h1 class="h3 mb-4">Reports</h1><section class="metric"><span>Completed sales total</span><strong id="report-total">-</strong></section><script src="/frontend-assets/js/reports.js"></script>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-0 fw-bold text-dark">Analytics & Reports</h1>
+    <p class="text-muted small mb-0">Sales summary performance and inventory evaluation metrics.</p>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-3 h-100">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="card-title mb-0 fw-bold text-primary">Sales Summary Report</h5>
+      </div>
+      <div class="card-body">
+        <% if (salesReport) { %>
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Total Completed Transactions</span>
+              <span class="badge bg-primary fs-6"><%= salesReport.totalSales || salesReport.totalSalesCount || 0 %></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Gross Revenue</span>
+              <span class="fs-5 fw-bold text-success">$<%= Number(salesReport.totalRevenue || salesReport.revenue || 0).toFixed(2) %></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Average Sale Value</span>
+              <span class="fw-bold">$<%= Number(salesReport.averageSaleValue || 0).toFixed(2) %></span>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="text-muted text-center py-3">No sales metrics data available.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-3 h-100">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="card-title mb-0 fw-bold text-info">Inventory Summary Report</h5>
+      </div>
+      <div class="card-body">
+        <% if (inventoryReport) { %>
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Total Inventory Items</span>
+              <span class="badge bg-info text-dark fs-6"><%= inventoryReport.totalItems || inventoryReport.totalProducts || 0 %></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Estimated Stock Valuation</span>
+              <span class="fs-5 fw-bold text-dark">$<%= Number(inventoryReport.totalStockValue || inventoryReport.stockValue || 0).toFixed(2) %></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">Low Stock Alert Count</span>
+              <span class="badge bg-danger fs-6"><%= inventoryReport.lowStockCount || 0 %></span>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="text-muted text-center py-3">No inventory metrics data available.</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,13 @@
-<aside class="sidebar p-3"><nav class="nav flex-column gap-1"><a class="nav-link" href="/dashboard">Dashboard</a><a class="nav-link" href="/products">Products</a><a class="nav-link" href="/categories">Categories</a><a class="nav-link" href="/customers">Customers</a><a class="nav-link" href="/inventory">Inventory</a><a class="nav-link" href="/sales">Sales</a><a class="nav-link" href="/reports">Reports</a><a class="nav-link" href="/stores">Stores</a><a class="nav-link" href="/users">Users</a></nav></aside>
+<aside class="sidebar p-3 bg-light border-end" style="min-height: calc(100vh - 56px); width: 240px;">
+  <nav class="nav flex-column gap-2">
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page === 'dashboard/index' ? 'bg-primary text-white active' : '' %>" href="/dashboard">📊 Dashboard</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('products') ? 'bg-primary text-white active' : '' %>" href="/products">📦 Products</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('categories') ? 'bg-primary text-white active' : '' %>" href="/categories">📁 Categories</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('customers') ? 'bg-primary text-white active' : '' %>" href="/customers">👥 Customers</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('sales') ? 'bg-primary text-white active' : '' %>" href="/sales">🛒 Sales (POS)</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('inventory') ? 'bg-primary text-white active' : '' %>" href="/inventory">📋 Inventory</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('reports') ? 'bg-primary text-white active' : '' %>" href="/reports">📈 Analytics & Reports</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('stores') ? 'bg-primary text-white active' : '' %>" href="/stores">🏪 Stores</a>
+    <a class="nav-link text-dark fw-semibold rounded-2 p-2 px-3 <%= page.startsWith('users') ? 'bg-primary text-white active' : '' %>" href="/users">🧑‍💻 Staff Users</a>
+  </nav>
+</aside>

@@ -46,6 +46,8 @@ app.use((req,res,next)=>{
 
 app.use((req,res,next)=>{
   res.locals.user = req.session.user || null;
+  res.locals.currentStoreId = req.session.currentStoreId || null;
+  res.locals.currentStore = req.session.currentStore || null;
 
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
@@ -57,6 +59,7 @@ app.use((req,res,next)=>{
 // Static Files
 // --------------------------------------------------
 
+app.use("/frontend-assets", express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
